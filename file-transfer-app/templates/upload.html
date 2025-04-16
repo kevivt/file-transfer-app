@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>File Transfer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>📁 Upload a File</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="drop-area" id="drop-area">
+        <p>Drag & Drop your file here or click to select</p>
+        <input type="file" id="fileInput" name="file" required>
+      </div>
+      <button type="submit">Send File</button>
+      <div id="progress">
+        <div id="bar"></div>
+      </div>
+    </form>
+    <div id="status"></div>
+  </div>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
