@@ -2,7 +2,7 @@
 import socket
 import os
 
-HOST = '192.168.181.168'  # Server's IP address (his)
+HOST = '192.XXX.XXX.XXX'  # Server's IP address (his)
 PORT = 5001
 
 save_dir = 'received_files'
