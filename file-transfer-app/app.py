@@ -3,7 +3,7 @@ import socket
 
 app = Flask(__name__)
 
-SERVER_IP = '192.168.181.168'  # Friend's PC IP
+SERVER_IP = '192.XXX.XXX.XXX'  # Friend's PC IP
 SERVER_PORT = 5001
 
 @app.route('/')
