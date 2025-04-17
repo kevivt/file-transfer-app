@@ -1,29 +1,50 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, jsonify, render_template
+import os
 import socket
 
 app = Flask(__name__)
+UPLOAD_FOLDER = 'uploads'
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-SERVER_IP = '192.XXX.XXX.XXX'  # Friend's PC IP
+# Socket settings
+SERVER_IP = "192.168.7.168"
 SERVER_PORT = 5001
+SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096
 
-@app.route('/')
-def upload_form():
-    return render_template('upload.html')
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-@app.route('/upload', methods=['POST'])
-def upload_file():
-    file = request.files['file']
-    if file:
-        filename = file.filename
-        file_data = file.read()
+@app.route("/upload", methods=["POST"])
+def upload():
+    uploaded_file = request.files.get("file")
+    if uploaded_file:
+        path = os.path.join(UPLOAD_FOLDER, uploaded_file.filename)
+        uploaded_file.save(path)
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            filesize = os.path.getsize(path)
+            filename = os.path.basename(path)
+
+            s = socket.socket()
             s.connect((SERVER_IP, SERVER_PORT))
-            s.sendall(filename.encode())
-            s.sendall(file_data)
+            s.send(f"{filename}{SEPARATOR}{filesize}\n".encode())  # send header
 
-        return 'File uploaded successfully!'
-    return 'No file uploaded.'
+            with open(path, "rb") as f:
+                while True:
+                    bytes_read = f.read(BUFFER_SIZE)
+                    if not bytes_read:
+                        break
+                    s.sendall(bytes_read)
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+            s.close()
+            return jsonify({"message": "File uploaded and sent!"})
+        except Exception as e:
+            print(f"[!] Socket error: {e}")
+            return jsonify({"message": f"Upload saved but sending failed: {e}"}), 500
+
+    return jsonify({"message": "No file received"}), 400
+
+if __name__ == "__main__":
+    app.run(debug=True)
